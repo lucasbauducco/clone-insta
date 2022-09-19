@@ -13,45 +13,29 @@ app.use(express.json())
         return token
     })
 }*/
+app.use(express.static('public')) // hablilitar capeta como publica
 var connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'instagram1',
     password : 'instagram',
     database : 'instaclone'
 })
-app.post('/api/users/login', (req, res) =>{
-    var userData = {
-        email: req.body.email,
-        password: req.body.password
-    }
-    bcrypt.hash(userData.password, 10, (err, hash) => {
-        connection.query("SELECT email, password from users where email = '"+req.body.email+"'",(err, result) =>{
-            if(err) throw err
-            var userData = {
-                email: req.body.email
-            }
-            jwt.sign(userData, 'd47b7e7525c7c01f94c053c513e6b22eb5e256b310346c31e474f1b078811b6a',{expiresIn: 1444}, (err, token) =>{
-                if(err) throw err
-                res.json({ token: token })
-            })
-        })
-    })
-})
-app.post('/api/users/register', (req, res) =>{
-    bcrypt.hash(req.body.password, 10, (err, password) => {
-        connection.query("INSERT INTO users (email, password) VALUES ('"+req.body.email+"','"+password+"')", result => {
-            
-            var userData = {
-                email: req.body.email
-            }
-            jwt.sign(userData, 'd47b7e7525c7c01f94c053c513e6b22eb5e256b310346c31e474f1b078811b6a',{expiresIn: 1444}, (err, token) =>{
-                if(err) throw err
-                res.json({ token: token })
-            })
 
-        })
+const protectedRoute = (req, res, next) => {
+    const token = req.headers["authorization"]
+    if(!token)
+        return res.status(401).json({ error: "Unauthorized"})
+
+    jwt.verify(token, 'd47b7e7525c7c01f94c053c513e6b22eb5e256b310346c31e474f1b078811b6a', (err, decoded) => {
+        if(err)
+            return res.status(401).json({ error: "Unauthorized"})
+        req.decoded = decoded
+        next()
     })
-})
+}
+
+require('./resources/users')(app, connection, protectedRoute)
+require('./resources/post')(app, connection, protectedRoute)
 
 app.listen(4000, () => {
     console.log("El servidor esta corriendo en el puerto 4000")

@@ -2,12 +2,13 @@
   <main>
     <section class="full flex">
         <div class="column image">
-            <img src="@/assets/img/login-baner.jpg" alt="">
+            <img src="@/assets/img/banner.jpg" alt="baner">
         </div>
         <div class="column flex text">
             <div class="content">
-                <h1 class="text-center">Entrar a tu<strong>galería</strong>.</h1>
+                <h1 class="text-center">Entrar a tu <strong>galería</strong>.</h1>
                 <form v-on:submit.prevent="login">
+                    <p v-show="error">{{error}}</p>
                     <label class="form-label" for="#email">Email:</label>
                     <input
                         v-model="email"
@@ -49,7 +50,8 @@ export default {
     data(){
         return{
             email:"",
-            password:""
+            password:"",
+            error: false
         }
     },
     methods: {
@@ -59,10 +61,12 @@ export default {
                 password: this.password
             }).then(result => {
                 console.log(result.data)
+                if(result.data.error)
+                    this.error = result.data.error
                 if(result.data.token){
-                    console.log(result.data.token)
                     this.$store.commit('setToken', result.data.token)
-                    this.$router.push('/');
+                    api.defaults.headers['Authorization'] = this.$store.getters.token
+                    this.$router.push('/')
                 }
             })
         }
@@ -80,6 +84,8 @@ export default {
             display block
             height 100%
             object-fit cover
+            -webkit-filter brightness(60%)
+            filter brightness(60%)
         p 
             position absolute
             bottom 30px
