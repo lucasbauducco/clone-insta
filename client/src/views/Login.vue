@@ -60,11 +60,12 @@ export default {
                 email: this.email,
                 password: this.password
             }).then(result => {
-                console.log(result.data)
                 if(result.data.error)
                     this.error = result.data.error
                 if(result.data.token){
+                    console.log(result.data.token)
                     this.$store.commit('setToken', result.data.token)
+                    this.$store.commit('setId', result.data.id)
                     api.defaults.headers['Authorization'] = this.$store.getters.token
                     this.$router.push('/')
                 }
@@ -81,11 +82,12 @@ export default {
         position relative
         img 
             width 100%
+            padding-top 10%
             display block
             height 100%
             object-fit cover
-            -webkit-filter brightness(60%)
-            filter brightness(60%)
+            -webkit-filter brightness(70%)
+            filter brightness(70%)
         p 
             position absolute
             bottom 30px

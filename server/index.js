@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const mysql = require('mysql')
 app.use(cors())
-app.use(express.json())
+app.use(express.json({limit: '50mb'}))
 //token
 /*const signToken = userData =>{
     jwt.sign(userData, 'd47b7e7525c7c01f94c053c513e6b22eb5e256b310346c31e474f1b078811b6a',{algorithm: 'RS256'}, (err, token) =>{

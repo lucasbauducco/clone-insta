@@ -2,12 +2,20 @@
   <main>
     <section class="full flex">
         <div class="column image">
-            <img src="@/assets/img/login-baner.jpg" alt="">
+            <img src="@/assets/img/love-life.jpg" alt="Banner person in heart drawn">
         </div>
         <div class="column flex text">
             <div class="content">
                 <h1 class="text-center">Registre su <strong>galería</strong> aquí.</h1>
                 <form v-on:submit.prevent="register">
+                    <label class="form-label" for="#email">User Name:</label>
+                    <input
+                        v-model="username"
+                        class="form-input"
+                        type="text"
+                        required
+                        placeholder="User Name"
+                    >
                     <label class="form-label" for="#email">Email:</label>
                     <input
                         v-model="email"
@@ -58,6 +66,7 @@ export default {
     data(){
         return{
             email:"",
+            username: "",
             password:"",
             password2:""
         }
@@ -70,12 +79,13 @@ export default {
             }
             api.post('/users/register', {
                 email: this.email,
-                password: this.password
+                password: this.password,
+                username: this.username
             }).then(result => {
-                console.log(result.data)
                 if(result.data.token){
-                    console.log(result.data.token)
                     this.$store.commit('setToken', result.data.token)
+                    this.$store.commit('setId', result.data.id)
+                    this.$store.commit('setUsername', result.data.username)
                     this.$router.push('/');
                 }
             })
@@ -86,14 +96,17 @@ export default {
 
 <style lang="stylus" scoped>
     .image
-        width 60%
+        width 50%
         flex-basis 60%
         position relative
         img 
             width 100%
+            padding-top 10%
             display block
             height 100%
             object-fit cover
+            -webkit-filter brightness(70%)
+            filter brightness(70%)
         p 
             position absolute
             bottom 30px

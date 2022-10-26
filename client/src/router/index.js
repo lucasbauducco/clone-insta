@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Post from '../views/Post.vue'
 
 import store from '@/store'
 import api from '@/api'
@@ -9,7 +10,12 @@ import api from '@/api'
 const routes = [
   {
     path: '/',
-    component: HomeView
+    component: HomeView,
+    children: [{
+      path: 'post/:id',
+      props: true,
+      component: Post
+    }]
   },
   {
     path: '/login',
