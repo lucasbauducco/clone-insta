@@ -2,7 +2,7 @@
   <div class="overlay" @click="close">
     <div class="modal" @click.stop="">
         <figure>
-            <img :src="'http://192.168.3.175:4000/' + post.source" :alt="post.title" >
+            <img :src="'http://192.168.2.201:4000/' + post.source" :alt="post.title" >
         </figure>
         <div class="content">
             <div class="top">

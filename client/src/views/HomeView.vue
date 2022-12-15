@@ -6,7 +6,7 @@
       </article>
       <div class="grid">
         <figure v-for="post in posts" :key="post.post_id" @dblclick="likePost(post)" @click="navigatePost(post)">
-          <img :src="'http://192.168.3.175:4000/' + post.source" :alt="posts.title">
+          <img :src="'http://192.168.2.201:4000/' + post.source" :alt="posts.title">
           <figcaption>
             <ul>
               <li v-if="postLikes.includes(post.post_id)"> 
@@ -37,7 +37,7 @@ export default {
       return{
         posts: [],
         postLikes: [],
-        baseUrl: 'http://192.168.3.175:4000/'
+        baseUrl: 'http://192.168.2.201:4000/'
       }
     },
     created(){

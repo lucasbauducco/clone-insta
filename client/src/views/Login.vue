@@ -60,6 +60,7 @@ export default {
                 email: this.email,
                 password: this.password
             }).then(result => {
+                console.log(result)
                 if(result.data.error)
                     this.error = result.data.error
                 if(result.data.token){
