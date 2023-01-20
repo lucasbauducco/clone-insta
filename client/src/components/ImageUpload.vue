@@ -1,27 +1,181 @@
 <template>
     <div>
-        <input id="imageFile" type="file" @change="selectFile($event)"/>
-        <label for="imageFile" @dragenter.stop.prevent="" @dragover.stop.prevent="" @drop="loadImage($event)">
-            <h2 v-if="!image">Arrastra aquí imagen <br> para seleccionarla </h2>
-            <svg xmlns="http://www.w3.org/2000/svg" width="64px" viewBox="0 0 640 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"/></svg>
-        </label>
-        <img v-if="image" :src="image"/>
+        <div class="flex .justify-content">
+            </div>
+            <hr />
+            <input
+            ref="input"
+            type="file"
+            name="image"
+            accept="image/*"
+            @change="setImage"
+            />
+            <div class="content">
+                <section class="cropper-area">
+                    <div class="img-cropper">
+                      <vue-cropper
+                          ref="cropper"
+                          :autoCrop="true"
+                          :minCropBoxWidth="100"
+                          :maxCropBoxWidth="1080"
+                          :checkCrossOrigin="true"
+                          :aspect-ratio="4/5"
+                          :src= "imgSrc"
+                          preview=".preview"
+                      />
+                    </div>
+                    <div class="actions">
+                      <a
+                          href="#"
+                          role="button"
+                          @click.prevent="cropImage"
+                      >
+                          Crop
+                      </a>
+                      <a
+                          href="#"
+                          role="button"
+                          @click.prevent="reset"
+                      >
+                          Reset
+                      </a>
+                      <a
+                          href="#"
+                          role="button"
+                          @click.prevent="showFileChooser"
+                      >
+                          Upload Image
+                      </a>
+                    </div>
+                </section>
+                <section class="preview-area">
+                    <div class="preview" />
+                    <div class="cropped-image">
+                      <img
+                          ref="imageCut"
+                          v-if="image"
+                          :src="image"
+                          alt="Cropped Image"
+                      />
+                      <div v-else class="crop-placeholder"/>
+                    </div>
+
+                </section>
+            </div>
     </div>
 </template>
 
 <script>
-
+import VueCropper from 'vue-cropperjs';
+import 'cropperjs/dist/cropper.css';
 export default {
     data(){
         return{
-            image: ""
+            
+            imgSrc: "https://cdn.pixabay.com/photo/2016/06/02/02/33/triangles-1430105__340.png",
+            image: ''
         }
+    },
+    components: {
+        VueCropper
     },
     mounted(){
         const width = this.$el.clientWidth
-        this.$el.style.height = width + "px"
+
     },
     methods: {
+    cropImage() {
+      const reader = new FileReader()
+      var blob;
+      // get image data for pthisost processing, e.g. upload or setting image src
+      this.image = this.$refs.cropper.getCroppedCanvas().toDataURL()
+      this.$emit("selected", this.image)
+    },
+    flipX() {
+      const dom = this.$refs.flipX;
+      let scale = dom.getAttribute('data-scale');
+      scale = scale ? -scale : -1;
+      this.$refs.cropper.scaleX(scale);
+      dom.setAttribute('data-scale', scale);
+    },
+    flipY() {
+      const dom = this.$refs.flipY;
+      let scale = dom.getAttribute('data-scale');
+      scale = scale ? -scale : -1;
+      this.$refs.cropper.scaleY(scale);
+      dom.setAttribute('data-scale', scale);
+    },
+    getCropBoxData() {
+     
+    },
+    getData() {
+      this.data = JSON.stringify(this.$refs.cropper.getData(), null, 4);
+    },
+    move(offsetX, offsetY) {
+      this.$refs.cropper.move(offsetX, offsetY);
+      this.cropImage()
+    },
+    reset() {
+      this.$refs.cropper.reset();
+    },
+    rotate(deg) {
+      this.$refs.cropper.rotate(deg);
+    },
+    setCropBoxData() {
+      if (!this.data) return;
+      this.$refs.cropper.setCropBoxData(JSON.parse(this.data));
+    },
+    setData() {
+      if (!this.data) return;
+      this.$refs.cropper.setData(JSON.parse(this.data));
+    },
+    crop(image, x, y, width, height) {
+      // create a canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      let orig_src = new Image();
+      orig_src.src = image;
+
+      // set canvas size
+      canvas.width = width;
+      // If you want aspect ration 4:5 uncomment the line below.
+      height = 5*width/4
+      canvas.height = height;
+      console.log(image)
+      // draw the image
+      ctx.drawImage(orig_src,0,0,width/8,height/8,0,0,width,height);
+
+      // return the data url
+      return canvas.toDataURL();
+    },
+        setImage(e) {
+            const file = e.target.files[0]
+            if (file.type.indexOf('image/') === -1) {
+                alert('Please select an image file')
+                return;
+            }
+            if (typeof FileReader === 'function') {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                this.image= event.target.result
+                // rebuild cropperjs with the updated source
+                this.$refs.cropper.replace(event.target.result)
+                // cut an image
+                  this.image = this.crop(this.image, 50, 50, 1080, 277)
+                  this.$emit("selected", this.image)
+                }
+                reader.readAsDataURL(file)
+
+              } else {
+                alert('Sorry, FileReader API not supported')
+            }
+        },
+        showFileChooser() {
+        this.$refs.input.click();
+        },
+        zoom(percent) {
+        this.$refs.cropper.relativeZoom(percent);
+        },
         loadImage(e){
             e.stopPropagation()
             e.preventDefault()
@@ -51,39 +205,84 @@ export default {
                 this.$emit("selected", e.target.files[0])
 
             }
-        }
+        },
     }
 }
 </script>
 
-<style lang="stylus" scoped>
-div 
-    width 400px 
-    background transparent 
-    display flex
-    justify-content center
-    align-items center
-    border 2px dashed #C1C1C1
-    h2 
-        text-align center
-        color rgba(0,0,0,0.2)
-        user-select none
-    label
-        position absolute
-        display flex
-        align-items center
-        justify-content center
-        svg
-            width 200px
-            position absolute
-            z-index 0
-            opacity 0.1
-    img
-        width 100%
-        object-fit cover /* Recorta la imagen sin deformarla */
-        object-position center
-input 
-    position absolute
-    top -9999px
-    left -999px
+<style >
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  width: 1024px;
+  margin: 0 auto;
+}
+input[type="file"] {
+  display: none;
+}
+.header {
+  padding: 20px;
+}
+.header h2 {
+  margin: 0;
+}
+.header a {
+  text-decoration: none;
+  color: black;
+}
+.content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+.actions a {
+  display: inline-block;
+  padding: 5px 15px;
+  background: #0062CC;
+  color: white;
+  text-decoration: none;
+  border-radius: 3px;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+textarea {
+  width: 100%;
+  height: 100px;
+}
+.preview-area {
+  width: 100%;
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.preview-area p {
+  font-size: 1.25rem;
+  margin: 0;
+  margin-bottom: 1rem;
+}
+.preview-area p:last-of-type {
+  margin-top: 1rem;
+}
+.preview {
+  width: 150px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.crop-placeholder {
+  width: 150px;
+  aspect-ratio: 4 / 5;
+  background: #ccc;
+  margin-top: 5px;
+}
+.cropped-image {
+  margin-top: 10px;
+}
+.cropped-image img{
+  background: #ffffff;
+  width: 150px;
+  aspect-ratio: 4 / 5;
+}
 </style>

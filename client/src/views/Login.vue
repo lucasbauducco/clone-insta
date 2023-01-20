@@ -64,10 +64,11 @@ export default {
                 if(result.data.error)
                     this.error = result.data.error
                 if(result.data.token){
-                    console.log(result.data.token)
                     this.$store.commit('setToken', result.data.token)
                     this.$store.commit('setId', result.data.id)
+                    this.$store.commit('setUsername', result.data.username)
                     api.defaults.headers['Authorization'] = this.$store.getters.token
+                    console.log(result.data.username)
                     this.$router.push('/')
                 }
             })

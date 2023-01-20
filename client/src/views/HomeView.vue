@@ -5,21 +5,21 @@
         <h1>Lo más <strong>nuevo</strong></h1>
       </article>
       <div class="grid">
-        <figure v-for="post in posts" :key="post.post_id" @dblclick="likePost(post)" @click="navigatePost(post)">
-          <img :src="'http://192.168.2.201:4000/' + post.source" :alt="posts.title">
+        <figure v-for="post in posts" :key="post.post_id">
+          <img :src="'http://192.168.2.199:4000/' + post.source" :alt="posts.title" @click="navigatePost(post)">
           <figcaption>
             <ul>
               <li v-if="postLikes.includes(post.post_id)"> 
-                <img src="@/assets/img/heart.svg" alt="Heart"/>
+                <img src="@/assets/img/heart.svg" @click="likePostDown(post)" alt="Heart"/>
                 <span>{{ post.likes}}</span>
               </li>
               <li v-else> 
-                <img src="@/assets/img/hornero.svg" alt="Hornero"/>
+                <img src="@/assets/img/hornero.svg" @click="likePost(post)" alt="Hornero"/>
                 <span>{{ post.likes}}</span>
               </li>
               <li> 
                 <img src="@/assets/img/comment.svg" alt="Logo Comment">
-                <span>2</span>
+                <span>{{ post.comments}}</span>
               </li>
             </ul>
           </figcaption>
@@ -36,8 +36,9 @@ export default {
     data(){
       return{
         posts: [],
+        like: false,
         postLikes: [],
-        baseUrl: 'http://192.168.2.201:4000/'
+        baseUrl: 'http://192.168.2.199:4000/'
       }
     },
     created(){
@@ -49,14 +50,22 @@ export default {
       })
   },
   methods: {
+    likePostDown(post){
+
+      api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+        if(response.data.ok){
+          post.likes--
+          this.postLikes.splice(0, 1)
+          this.like = false
+        }
+      })
+    },
     likePost(post) {
-      if(this.postLikes.includes(post.post_id)){
-        return
-      }
       api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
         if(response.data.ok){
           post.likes++
           this.postLikes.push(post.post_id)
+          this.like = true
         }
       })
     },
@@ -85,14 +94,18 @@ export default {
           margin 10px
           width 33.3333333%
           width calc(33.3333333% - 20px)
+          
           position relative
-          cursor pointer
+          pointer-events none
+          text-align center
           &:hover figcaption
             opacity 1
 
           img
             display block
             width 100%
+            pointer-events all
+            cursor pointer
           figcaption
             position absolute
             top 0
@@ -105,6 +118,8 @@ export default {
             justify-content center
             opacity 0
             transition opacity ease-out 200ms
+            pointer-events none
+            cursor pointer
             ul 
               display flex
               margin 0
@@ -122,7 +137,8 @@ export default {
                 span 
                   font-size 16px
                 img
-                  width 32px
-                  
+                  width 40px
+                  position relative
+                  z-index 1
 
 </style>

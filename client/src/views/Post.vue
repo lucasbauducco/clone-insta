@@ -2,7 +2,7 @@
   <div class="overlay" @click="close">
     <div class="modal" @click.stop="">
         <figure>
-            <img :src="'http://192.168.2.201:4000/' + post.source" :alt="post.title" >
+            <img :src="'http://192.168.2.199:4000/' + post.source" :alt="post.title" >
         </figure>
         <div class="content">
             <div class="top">
@@ -50,8 +50,12 @@
             </div>
             <div class="footer">
                 <div class="likes">
-                    <a href="#">
-                        <img  src="@/assets/img/hornero.svg" alt="Hornero"/> 
+                    <a v-if="postLikes.includes(post.post_id)" @click="likePostDown(post)" href="#">
+                            <img src="@/assets/img/heart.svg" alt="Heart"/>
+                            <span >{{post.likes}} Me gusta</span>
+                    </a>
+                    <a v-else @click="likePost(post)" href="#">
+                        <img src="@/assets/img/hornero.svg" alt="Hornero"/>
                         <span>{{post.likes}} Me gusta</span>
                     </a>
                 </div>
@@ -67,11 +71,13 @@
 
 <script>
     import api from '@/api.js';
+
 export default {
     props:["id"],
     data() {
         return {
             postLikes: [],
+            like: false,
             post: {},
             user: {},
             comments:[],
@@ -106,26 +112,38 @@ export default {
     },
     methods:{
         close(){
-           this.$router.push('/')
+            this.$router.push('/').then(response =>{
+
+            })
+
         },
-        likePost(post) {
-            if(this.postLikes.includes(post.post_id)){
-                return
-            }
-            api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+        likePostDown(post){
+
+            api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
                 if(response.data.ok){
-                post.likes++
-                this.postLikes.push(post.post_id)
+                    post.likes--
+                    this.postLikes.splice(0, 1)
+                    this.like= false
                 }
             })
-            },
+        },
+        likePost(post) {
+            api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+                if(response.data.ok){
+                    post.likes++
+                    this.postLikes.push(post.post_id)
+                    this.like= true
+                }
+            })
+        },
         newComment(){
+            this.comment.userId = this.$store.getters.loggedId
+            this.comment.postId = this.id
+            this.comment.username = this.$store.getters.username
             api.post(`/posts/${this.comment.postId}/comments`, this.comment).then(response => {
                 if(response.data.ok){
-                    const newC = Object.assign({}, this.comment)
-                    console.log(newC)
-                    this.comments.push(newC)
-                    this.comment.comment= ""
+                    this.comments.push(this.comment)
+                    this.comment = ""
                 }
                     
             })
@@ -153,26 +171,24 @@ export default {
             border-radius 18px
             box-shadow 0 0 35px 0 rgba(0,0,0,0.3)
             display flex
+            justify-content  space-between
             figure 
-                margin 0
-                
+                width 50%
+                text-align: center
                 img 
-                    object-fit fill
-                    width 100%
                     height 100%
-                    padding 20px
+                    object-fit fill
             div.content
                 width 50%
                 display flex
                 flex-direction column
-                padding 20px
                 div.top
                     display flex
                     justify-content space-between
                     align-items center
+                    border-bottom 1px solid #DFDFDF
                     padding 10px 20px
                     flex 75px 0 0
-                    border-bottom 1px solid #DFDFDF
                     .close
                         font-size 32px
                     .separator
@@ -182,7 +198,7 @@ export default {
                 div.title
                     flex 75px 0 0
                     h1 
-                        padding 20px
+                        
                         line-height 75px
                         margin 0
     div.comments
@@ -206,12 +222,16 @@ export default {
     div.footer 
         padding 0 20px
         div.likes 
-            height 50px
-            line-height 50px
-            img 
-                margin-right 10px
-            a 
-                font-weight bold
+            height 40px
+            line-height 40px
+
+        img 
+            margin-right 10px
+            width 30px
+        span
+            margin-left 10px
+        a 
+            font-weig20ht bold
         form 
             display flex
             input[type="submit"]

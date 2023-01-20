@@ -3,7 +3,7 @@ const upload = multer({ dest: "public/uploads/"})
 module.exports = (app, connection, protectedRoute) => {
 
     app.get('/api/posts', (req, res)=>{
-        connection.query("SELECT * from post where type = 'public';--", (err, result) => {
+        connection.query("SELECT * from post where type = 'public' ORDER BY post_id DESC;--", (err, result) => {
             if (err) throw err
             
             return res.json(result)
@@ -27,13 +27,35 @@ module.exports = (app, connection, protectedRoute) => {
         })
         
     })
+    //like up
     app.post('/api/posts/like/:postId/:userId', (req, res) =>{
         const post_id = req.params.postId
         const user_id = req.params.userId
 
         connection.query(`INSERT INTO user_likes (user_id, post_id) VALUES (?,?);--`,[user_id, post_id], (err, result) => {
-            if (err) throw err
+            if (err) {
+                return res.json({faild: err})
+
+            }
             connection.query(`UPDATE post SET likes = likes + 1 WHERE post_id = ?;--`,[post_id], (err, result) => {
+                if (err) throw err
+    
+                return res.json({ok: true})
+            })
+        })
+
+    })
+    //like down
+    app.post('/api/posts/likedown/:postId/:userId', (req, res) =>{
+        const post_id = req.params.postId
+        const user_id = req.params.userId
+
+        connection.query(`DELETE FROM user_likes WHERE user_id = ? AND post_id = ?;--`,[user_id, post_id], (err, result) => {
+            if (err) {
+                return res.json({faild: err})
+
+            }
+            connection.query(`UPDATE post SET likes = likes - 1 WHERE post_id = ?;--`,[post_id], (err, result) => {
                 if (err) throw err
     
                 return res.json({ok: true})
@@ -65,8 +87,11 @@ module.exports = (app, connection, protectedRoute) => {
         const comment = req.body.comment
         connection.query(`INSERT INTO comments (user_id, post_id, comment) VALUES (?,?,?);--`,[userId, postId, comment], (err, result) => {
             if (err) throw err
+            connection.query(`UPDATE post SET comments = comments + 1 WHERE post_id = ?;--`,[postId], (err, result) => {
+                if (err) throw err
     
-            return res.json({ok: true})
+                return res.json({ok: true})
+            })
         })
     })
 }

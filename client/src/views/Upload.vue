@@ -5,7 +5,8 @@
             <h1> Crear nueva <strong>publicación</strong>: {{ titulo }}</h1>
             <div class="flex">
                 <div class="column">
-                    <image-upload @selected="image = $event"></image-upload>
+                    
+                <image-upload @selected="getName"></image-upload>
                 </div>
                 <div class="column">
                     <form @submit.prevent="publish">
@@ -25,18 +26,44 @@
 <script>
     import ImageUpload from '@/components/ImageUpload.vue'
     import api from '@/api.js'
-import { constants } from 'buffer'
+    import { constants } from 'buffer'
+
 export default {
     data() {
         return {
             titulo: '',
             tags:'',
             descripcion:'',
-            image: ''
+            image: '',
         }
     },
+    mounted() {
+    },
     methods: {
+        getName(value) {
+           this.image = value
+        },
+        //return a promise that resolves with a File instance
+        dataURLtoFile(dataurl, filename) {
+            
+            var arr = dataurl.toString().split(','),
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n)
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n)
+            }
+            
+            return new File([u8arr], filename, {type:mime})
+        },
         publish() {
+            if (this.image==='') {
+                alert('Seleccione una imagen');
+                return;
+            }
+            this.image = this.dataURLtoFile(this.image, 'image.jpg')
             const formData = new FormData()
             formData.set('title', this.titulo)
             formData.set('tags', this.tags)
@@ -59,6 +86,7 @@ export default {
         ImageUpload
     }
 }
+
 </script>
 
 <style lang="stylus" scoped>
@@ -68,11 +96,11 @@ export default {
       min-height 100vh
       h1 
         margin 0
-        margin-bottom 30px
+        margin-bottom 0px
       article
-        margin-top 20px
+        margin-top 30px
     div.column
-        width 50%
+        width 100%
 
     form 
         padding-left 20px
