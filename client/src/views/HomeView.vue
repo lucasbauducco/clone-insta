@@ -6,7 +6,7 @@
       </article>
       <div class="grid">
         <figure v-for="post in posts" :key="post.post_id">
-          <img :src="'http://192.168.2.199:4000/' + post.source" :alt="posts.title" @click="navigatePost(post)">
+          <img :src="baseUrl+ post.source" :alt="posts.title" @click="navigatePost(post)">
           <figcaption>
             <ul>
               <li v-if="postLikes.includes(post.post_id)"> 
@@ -18,7 +18,7 @@
                 <span>{{ post.likes}}</span>
               </li>
               <li> 
-                <img src="@/assets/img/comment.svg" alt="Logo Comment">
+                <img src="@/assets/img/comment.svg" alt="Logo Comment" @click="navigatePost(post)">
                 <span>{{ post.comments}}</span>
               </li>
             </ul>
@@ -32,13 +32,14 @@
 
 <script>
 import api from "@/api.js"
+import store from '@/store'
 export default {
     data(){
       return{
         posts: [],
         like: false,
         postLikes: [],
-        baseUrl: 'http://192.168.2.199:4000/'
+        baseUrl: 'http://192.168.3.30:4000/'
       }
     },
     created(){
@@ -51,21 +52,30 @@ export default {
   },
   methods: {
     likePostDown(post){
-
+      if(!store.getters.token) alert('Please Loggin In')
       api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
         if(response.data.ok){
-          post.likes--
-          this.postLikes.splice(0, 1)
-          this.like = false
+          if(this.postLikes.indexOf(post.post_id)!=-1){
+            this.postLikes.splice(this.postLikes.indexOf(post.post_id), 1);
+            this.like = false
+            post.likes--
+          }else{
+            alert('you stop pushing! :(')
+          }
         }
       })
     },
     likePost(post) {
+      if(!store.getters.token) alert('Please Loggin In')
       api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
         if(response.data.ok){
-          post.likes++
-          this.postLikes.push(post.post_id)
-          this.like = true
+          if(this.postLikes.indexOf(post.post_id)==-1){
+            this.postLikes.push(post.post_id)
+            this.like = true
+            post.likes++
+          }else{
+            alert('you stop pushing! :(')
+          }
         }
       })
     },

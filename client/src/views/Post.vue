@@ -112,27 +112,40 @@ export default {
     },
     methods:{
         close(){
-            this.$router.push('/').then(response =>{
+            this.$router.push('/')
+                api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
+                    if(response.data.ok){
+                        this.postLikes = response.data
+                    }
+                })
 
-            })
+
 
         },
         likePostDown(post){
 
             api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
                 if(response.data.ok){
-                    post.likes--
-                    this.postLikes.splice(0, 1)
-                    this.like= false
+                    if(this.postLikes.indexOf(post.post_id)!=-1){
+                        this.postLikes.splice(this.postLikes.indexOf(post.post_id), 1);
+                        this.like = false
+                        post.likes--
+                    }else{
+                        alert('you stop pushing! :(')
+                    }
                 }
             })
         },
         likePost(post) {
             api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
                 if(response.data.ok){
-                    post.likes++
-                    this.postLikes.push(post.post_id)
-                    this.like= true
+                    if(this.postLikes.indexOf(post.post_id)==-1){
+                        this.postLikes.push(post.post_id)
+                        this.like = true
+                        post.likes++
+                    }else{
+                        alert('you stop pushing! :(')
+                    }
                 }
             })
         },

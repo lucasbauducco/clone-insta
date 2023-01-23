@@ -134,16 +134,16 @@ export default {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       let orig_src = new Image();
+      var heightcanvas = 5*height/4;
       orig_src.src = image;
 
       // set canvas size
-      canvas.width = width;
+      canvas.width = 1080;
       // If you want aspect ration 4:5 uncomment the line below.
-      height = 5*width/4
-      canvas.height = height;
-      console.log(image)
+  
+      canvas.height = 1350;
       // draw the image
-      ctx.drawImage(orig_src,0,0,width/8,height/8,0,0,width,height);
+      ctx.drawImage(orig_src,0,0,1080,1350,0,0,width,height);
 
       // return the data url
       return canvas.toDataURL();
@@ -156,12 +156,14 @@ export default {
             }
             if (typeof FileReader === 'function') {
                 const reader = new FileReader()
+                const img = new Image() 
                 reader.onload = (event) => {
                 this.image= event.target.result
                 // rebuild cropperjs with the updated source
                 this.$refs.cropper.replace(event.target.result)
+                img.src= this.image;
                 // cut an image
-                  this.image = this.crop(this.image, 50, 50, 1080, 277)
+                  this.image = this.crop(this.image, 50, 50, img.width, img.height)
                   this.$emit("selected", this.image)
                 }
                 reader.readAsDataURL(file)
