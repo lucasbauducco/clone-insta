@@ -1,7 +1,7 @@
 <template>
     <main>
         <div class="container">
-            <h1 class="title-account text-center">Mi Perfil</h1>
+            <h1 class="title-account text-center"></h1>
             <p class="text-account">{{ name }}</p>
             <div class="container container-border profile-background">
                 <div class="flex justify-content">
@@ -27,24 +27,23 @@
                     {{ description }}
                 </div>
             </div>
-            <div>
-                <ul class="flex justify-content-space-evenly">
+
+                <ul class="account-ul flex justify-content-space-evenly">
                   <li class="account-box-action container-border profile-background">
-                    <router-link to="/upload">
-                      Editar perfil
+                    <router-link to="/">
+                        Siguiendo
                     </router-link>
                   </li>
                   <li class="account-box-action container-border profile-background">
-                    <router-link  to="/profile">
-                      Compartir Perfil
+                    <router-link  to="/">
+                      Mensaje
                     </router-link>
                   </li>
                 </ul>
-            </div>
+
             <div class="container profile-background">
-                <AccountPost></AccountPost>
+                <AccountPost @selected="getid"></AccountPost>
             </div>
-            <button @click="logout">Salir</button>
         </div>
     </main>
 </template>
@@ -53,20 +52,32 @@
     import api from '@/api.js'
     import AccountPost from '@/components/AccountPost.vue'
     export default {
+        props:["id"],
         data(){
             return {
-                id: this.$store.getters.loggedId, 
                 email: null,
-                name:  'Juliet Waltier',
-                description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+                name:  '',
+                description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                postLikes: [],
+                like: false,
+                post: {},
+                user: {},
+                comments:[],
+                comment: {
+                    userId: null,
+                    postId: null,
+                    username: null,
+                    comment: "",
+
+                }
             }
         },
         created(){
-            api.get(`/users/${this.$store.getters.loggedId}`).then(response => {
+            api.get(`/users/${this.id}`).then(response => {
                 this.email = response.data.email
                 this.name = response.data.username
             })
-            api.get(`/posts/user/${this.$store.getters.loggedId}`).then(response => {
+            api.get(`/posts/user/${this.id}`).then(response => {
                 this.posts = response.data
             })
             api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
@@ -74,6 +85,9 @@
             })
         },
         methods:{
+            getid() {
+                return this.id;
+            },
             logout(){
                 this.$store.commit('setToken', null)
                 this.$router.push('/login')
@@ -110,11 +124,13 @@
             color #a0a098
             font-weig20ht bold
             font-weight 700
+        .account-ul ul
+            margin 0
+            padding 0
         .account-box-action
             list-style none
-            padding 0.5% 12%
+            padding 0.2rem 1rem
             text-align center
-            
             
                 
 

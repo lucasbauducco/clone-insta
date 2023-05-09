@@ -36,6 +36,7 @@ const protectedRoute = (req, res, next) => {
 
 require('./resources/users')(app, connection, protectedRoute)
 require('./resources/post')(app, connection, protectedRoute)
+require('./resources/mud')(app, connection, protectedRoute)
 
 app.listen(4000, () => {
     console.log("El servidor esta corriendo en el puerto 4000")

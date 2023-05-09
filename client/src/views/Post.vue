@@ -2,12 +2,15 @@
   <div class="overlay" @click="close">
     <div class="modal" @click.stop="">
         <figure>
-            <img :src="'http://192.168.2.199:4000/' + post.source" :alt="post.title" >
+            <img :src="baseUrl + post.source" :alt="post.title" >
         </figure>
         <div class="content">
             <div class="top">
                 <p>
-                    <a href="#" class="author">{{user.username}}</a>
+                    <router-link v-if="post.user_id== this.$store.getters.loggedId" to="/profile">{{user.username}}</router-link>
+                    <a v-else href="#" class="author" @click="navigateprofile(post)">
+                        {{user.username}}
+                    </a>
                     <span class="separator"> &middot; </span>
                     <a href="#">Seguir</a>
                 </p>
@@ -76,6 +79,7 @@ export default {
     props:["id"],
     data() {
         return {
+            baseUrl: 'http://192.168.3.151:4000/',
             postLikes: [],
             like: false,
             post: {},
@@ -160,6 +164,9 @@ export default {
                 }
                     
             })
+        },
+        navigateprofile(post){
+            this.$router.push(`/profileuser/${post.user_id}`)
         }
     }
 }
@@ -178,7 +185,7 @@ export default {
         justify-content center
         align-items center
         div.modal 
-            background white
+            background rgba(230,230,230,1)
             width 80%
             height 80%
             border-radius 18px
@@ -214,44 +221,63 @@ export default {
                         
                         line-height 75px
                         margin 0
-    div.comments
-        flex 1
-        overflow-y scroll
-    div.comment
+                div.comments
+                    flex 1
+                    overflow-y scroll
+                div.comment
+                    display flex
+                    padding 20px
+                    margin-bottom 20px
+                    .avatar
+                        margin-right 20px
+                        a
+                            display block 
+                            width 40px
+                            height 40px
+                            background #EBEBEB
+                            border-radius 20px
+                    .text
+                        p 
+                            margin 0
+                div.footer 
+                    padding 0 20px
+                    div.likes 
+                        height 40px
+                        line-height 40px
+
+                    img 
+                        margin-right 10px
+                        width 30px
+                    span
+                        margin-left 10px
+                    a 
+                        font-weig20ht bold
+                    form 
+                        display flex
+                        input[type="submit"]
+                            width initial
+                            margin-left 20px
+                            padding 10px
+
+@media screen and (max-width: 480px)
+    div.modal 
+        width 100% !important
+        height 50% !important
+        background rgba(230,230,230,1)
+        border-radius 18px
+        box-shadow 0 0 35px 0 rgba(0,0,0,0.3)
         display flex
-        padding 20px
-        margin-bottom 20px
-        .avatar
-            margin-right 20px
-            a
-                display block 
-                width 40px
-                height 40px
-                background #EBEBEB
-                border-radius 20px
-        .text
-            p 
-                margin 0
-    div.footer 
-        padding 0 20px
-        div.likes 
-            height 40px
-            line-height 40px
-
-        img 
-            margin-right 10px
-            width 30px
-        span
-            margin-left 10px
-        a 
-            font-weig20ht bold
-        form 
-            display flex
-            input[type="submit"]
-                width initial
-                margin-left 20px
-                padding 10px
-
+        flex-direction column
+        justify-content center !important
+        align-items center
+        figure 
+            width 100%
+            text-align: center
+            img 
+                width 100%
+                height 100%
+        div.content
+            display none !important
 
                     
 </style>>

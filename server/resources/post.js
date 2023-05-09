@@ -17,10 +17,18 @@ module.exports = (app, connection, protectedRoute) => {
             return res.json(result[0])
         })
     })
+    app.get('/api/posts/user/:id', (req, res)=>{
+        const id = req.params.id
+        connection.query("SELECT * from post WHERE user_id = ? ORDER BY post_id DESC;--",[id], (err, result) => {
+            if (err) throw err
+            
+            return res.json(result)
+        })
+    })
     app.post('/api/posts', upload.single('source'), (req, res)=>{
         const i = req.body
         const file = req.file
-        connection.query(`INSERT INTO post (title,tags, description, source, user_id, type) VALUES (?,?,?,?,?,?);--`,[i.title, i.tags, i.description, `uploads/${file.filename}`, i.user_id,'private'], (err, result) => {
+        connection.query(`INSERT INTO post (title,tags, description, source, user_id, type) VALUES (?,?,?,?,?,?);--`,[i.title, i.tags, i.description, `uploads/${file.filename}`, i.user_id,'galery'], (err, result) => {
             if (err) throw err
 
             return res.json({ok: true})

@@ -1,8 +1,6 @@
 <template>
     <div>
-        <div class="flex .justify-content">
-            </div>
-            <hr />
+        <div class="flex">
             <input
             ref="input"
             type="file"
@@ -16,8 +14,8 @@
                       <vue-cropper
                           ref="cropper"
                           :autoCrop="true"
-                          :minCropBoxWidth="100"
-                          :maxCropBoxWidth="1080"
+                          :background="true"
+                         
                           :checkCrossOrigin="true"
                           :aspect-ratio="4/5"
                           :src= "imgSrc"
@@ -47,27 +45,29 @@
                           Upload Image
                       </a>
                     </div>
-                </section>
-                <section class="preview-area">
-                    <div class="preview" />
-                    <div class="cropped-image">
-                      <img
-                          ref="imageCut"
-                          v-if="image"
-                          :src="image"
-                          alt="Cropped Image"
-                      />
-                      <div v-else class="crop-placeholder"/>
-                    </div>
-
-                </section>
+              </section>
+              <section class="preview-area">
+                  <div class="preview" />
+                  <div class="cropped-image">
+                    <img
+                        ref="imageCut"
+                        v-if="image"
+                        :src="image"
+                        alt="Cropped Image"
+                    />
+                    <div v-else class="crop-placeholder"/>
+                  </div>
+                
+              </section>
             </div>
+        </div>
     </div>
 </template>
 
 <script>
 import VueCropper from 'vue-cropperjs';
 import 'cropperjs/dist/cropper.css';
+import { exit } from 'process';
 export default {
     data(){
         return{
@@ -81,14 +81,13 @@ export default {
     },
     mounted(){
         const width = this.$el.clientWidth
-
     },
     methods: {
     cropImage() {
       const reader = new FileReader()
       var blob;
       // get image data for pthisost processing, e.g. upload or setting image src
-      this.image = this.$refs.cropper.getCroppedCanvas().toDataURL()
+      this.image = this.$refs.cropper.getCroppedCanvas({ fillColor: '#FFFFFF' }).toDataURL()
       this.$emit("selected", this.image)
     },
     flipX() {
@@ -129,85 +128,84 @@ export default {
       if (!this.data) return;
       this.$refs.cropper.setData(JSON.parse(this.data));
     },
-    crop(image, x, y, width, height) {
+    crop(image, width, height) {
       // create a canvas
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
+      var x = 0;
+      var y = 0;
+      var aspect_ratio= width/height;
       let orig_src = new Image();
       var heightcanvas = 5*height/4;
       orig_src.src = image;
-
       // set canvas size
       canvas.width = 1080;
       // If you want aspect ration 4:5 uncomment the line below.
   
       canvas.height = 1350;
+      var dif= 1080 - width;
+      if(dif>0){
+        width = width + dif;
+        height = width/aspect_ratio;
+      }else{
+        width = width - dif;
+        height = width/aspect_ratio;
+      }
+      if(height < 1350){
+        var dif = 1350 - height;
+        y = dif/2;
+      }
       // draw the image
-      ctx.drawImage(orig_src,0,0,1080,1350,0,0,width,height);
+      ctx.fillStyle = "rgba( 255, 255, 255 , 1)";
+      ctx.fillRect (0, 0, 1080, 1350);
+      ctx.drawImage(orig_src,x,y,width,height);
 
       // return the data url
       return canvas.toDataURL();
     },
         setImage(e) {
-            const file = e.target.files[0]
+            const file = e.target.files[0] 
             if (file.type.indexOf('image/') === -1) {
                 alert('Please select an image file')
                 return;
             }
             if (typeof FileReader === 'function') {
                 const reader = new FileReader()
-                const img = new Image() 
+                var img = new Image()
                 reader.onload = (event) => {
-                this.image= event.target.result
-                // rebuild cropperjs with the updated source
-                this.$refs.cropper.replace(event.target.result)
-                img.src= this.image;
-                // cut an image
-                  this.image = this.crop(this.image, 50, 50, img.width, img.height)
+                  this.image= event.target.result
+                  /*var img = new Image()
+
+                  img.src= this.imgSrc
+                  if(img.width>1200 || img.height>1350){
+                    alert("Ingrese una imagen menor a 1200x1350")
+                    this.image=''
+                    return;
+                  }
+                  this.image = this.crop(this.imgSrc, img.width, img.height)
+                  */
+                  // rebuild cropperjs with the updated source
+                  this.$refs.cropper.replace(event.target.result)
+                  // cut an image
                   this.$emit("selected", this.image)
                 }
+                
                 reader.readAsDataURL(file)
+                return;
 
               } else {
                 alert('Sorry, FileReader API not supported')
+                return;
             }
         },
         showFileChooser() {
-        this.$refs.input.click();
+          this.$emit("selected", '');
+          this.image = '';
+          this.$refs.input.click();
         },
         zoom(percent) {
         this.$refs.cropper.relativeZoom(percent);
-        },
-        loadImage(e){
-            e.stopPropagation()
-            e.preventDefault()
-
-            const transfer = e.dataTransfer
-            const files = transfer.files  
-            const image = files[0]
-
-            const reader = new FileReader()
-
-            reader.addEventListener("load", () => {
-                this.image = reader.result
-                this.$emit("selected", image)
-            })
-            if(image){
-                reader.readAsDataURL(image)
-            }
-        },
-        selectFile(e){
-            const reader = new FileReader()
-
-            reader.addEventListener("load", () => {
-                this.image = reader.result
-            })
-            if(e.target.files){
-                reader.readAsDataURL(e.target.files[0])
-                this.$emit("selected", e.target.files[0])
-
-            }
-        },
+        }
     }
 }
 </script>
@@ -215,7 +213,6 @@ export default {
 <style >
 body {
   font-family: Arial, Helvetica, sans-serif;
-  width: 1024px;
   margin: 0 auto;
 }
 input[type="file"] {
@@ -235,6 +232,19 @@ input[type="file"] {
   display: flex;
   justify-content: space-between;
 }
+@media screen and (max-width: 480px){
+  .content {
+    flex-direction: column;
+  }
+  .preview-area{
+    display: flex;
+    justify-content: space-between;
+  }
+  .crop-placeholder {
+    margin-top: 0px;
+  }
+}
+
 
 .actions {
   margin-top: 1rem;
@@ -253,11 +263,16 @@ textarea {
   width: 100%;
   height: 100px;
 }
+.cropper-container{
+  background: #ffffff;
+
+}
+.img-cropper img{
+  width: 360px;
+  aspect-ratio: 4 / 5;
+  background: #ccc;
+}
 .preview-area {
-  width: 100%;
-  margin-left: 10px;
-  display: flex;
-  flex-direction: column;
 }
 .preview-area p {
   font-size: 1.25rem;
@@ -268,23 +283,19 @@ textarea {
   margin-top: 1rem;
 }
 .preview {
-  width: 150px;
+  width: 180px;
   aspect-ratio: 4 / 5;
   overflow: hidden;
 }
 
 .crop-placeholder {
-  width: 150px;
+  width: 180px;
   aspect-ratio: 4 / 5;
   background: #ccc;
-  margin-top: 5px;
-}
-.cropped-image {
-  margin-top: 10px;
 }
 .cropped-image img{
-  background: #ffffff;
-  width: 150px;
+  width: 180px;
   aspect-ratio: 4 / 5;
+  background: #ccc;
 }
 </style>

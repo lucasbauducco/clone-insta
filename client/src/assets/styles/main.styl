@@ -41,10 +41,10 @@ $color-primary= #717CF0
             div.flex
                 justify-content space-between
             img
-                width 100px
+                width 6rem
             div.logo
-                width 24px
-                height 24px
+                width 2rem
+                height 2rem
                 background transparent
                 margin-right 120px
                 display inline-block
@@ -55,16 +55,20 @@ $color-primary= #717CF0
             form 
                 flex-grow 1
                 div.search-box
+                    width 2rem
                     position relative
                     svg 
                         position absolute
-                        left 10px
-                        transform translate(0, 50%)
-                    input 
-                        padding-left 50px
-                        &::placeholder
-                            color rgba(0,0,0,0.2)
-                        
+                        transform translate(20%, 50%)
+                        z-index 1
+                        display block
+                    input
+                        &:focus
+                            position fixed
+                            left 0
+                            top 5rem
+                            padding-left 4rem
+
             a[tag="button"]
                 flex-basis 180px
             ul.user-actions
