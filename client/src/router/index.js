@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Post from '../views/Post.vue'
+import Mud from '../views/Mud.vue'
 import ProfileUser from '../views/ProfileUser.vue'
 
 import store from '@/store'
@@ -13,7 +14,7 @@ const routes = [
     path: '/',
     component: HomeView,
     children: [{
-      path: 'post/:id',
+      path: 'mud/:id',
       props: true,
       component: Post
     }]

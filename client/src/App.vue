@@ -23,14 +23,10 @@
             <div class="column">
               <template v-if="details">
                 <ul class="user-actions" v-if= "logged">
-                  <li>
-                    <router-link to="/mud">
-                      <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 0 24 24"><title>landslide</title><path d="M15.47 13.79L12.89 12.76L6 15.05L2 13.5V15.61L6 16.95L15.47 13.79M10.57 11.42L8 8H2V11.61L6 12.95L10.57 11.42M6 19.05L2 17.72V22H22L17.03 15.38L6 19.05M17 6V1L12 0L9 2V6L12 8L17 6M18.5 7L16 9V12L18.5 14L23 12V8L18.5 7Z" /></svg>
-                    </router-link>
-                  </li>
+
                   <li>
                     <router-link to="/upload">
-                      <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 0 24 24"><title>image-plus-outline</title><path d="M13 19C13 19.7 13.13 20.37 13.35 21H5C3.9 21 3 20.11 3 19V5C3 3.9 3.9 3 5 3H19C20.11 3 21 3.9 21 5V13.35C20.37 13.13 19.7 13 19 13V5H5V19H13M13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H13.35C13.75 15.88 14.47 14.91 15.4 14.21L13.96 12.29M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 0 24 24"><title>landslide</title><path d="M15.47 13.79L12.89 12.76L6 15.05L2 13.5V15.61L6 16.95L15.47 13.79M10.57 11.42L8 8H2V11.61L6 12.95L10.57 11.42M6 19.05L2 17.72V22H22L17.03 15.38L6 19.05M17 6V1L12 0L9 2V6L12 8L17 6M18.5 7L16 9V12L18.5 14L23 12V8L18.5 7Z" /></svg>
                     </router-link>
                   </li>
                   <li>

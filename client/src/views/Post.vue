@@ -2,13 +2,13 @@
   <div class="overlay" @click="close">
     <div class="modal" @click.stop="">
         <figure>
-            <img :src="baseUrl + post.source" :alt="post.title" >
+            <img :src="baseUrl + mud.source" :alt="mud.title" >
         </figure>
         <div class="content">
             <div class="top">
                 <p>
-                    <router-link v-if="post.user_id== this.$store.getters.loggedId" to="/profile">{{user.username}}</router-link>
-                    <a v-else href="#" class="author" @click="navigateprofile(post)">
+                    <router-link v-if="mud.user_id== this.$store.getters.loggedId" to="/profile">{{user.username}}</router-link>
+                    <a v-else href="#" class="author" @click="navigateprofile(mud)">
                         {{user.username}}
                     </a>
                     <span class="separator"> &middot; </span>
@@ -19,7 +19,7 @@
                 </a>
             </div>
             <div class="title">
-                <h1>{{post.title}}</h1>
+                <h1>{{mud.title}}</h1>
             </div>
             <div class="comments">
                 <div class="comment">
@@ -31,7 +31,7 @@
                     <div class="text">
                         <p>
                             <a href="#">{{user.username}}</a>
-                            {{post.description}} 
+                            {{mud.description}} 
                             <a href="#">#tag1</a>
                         </p>
                     </div>
@@ -53,13 +53,13 @@
             </div>
             <div class="footer">
                 <div class="likes">
-                    <a v-if="postLikes.includes(post.post_id)" @click="likePostDown(post)" href="#">
+                    <a v-if="mudLikes.includes(mud.mud_id)" @click="likeMudDown(mud)" href="#">
                             <img src="@/assets/img/heart.svg" alt="Heart"/>
-                            <span >{{post.likes}} Me gusta</span>
+                            <span >{{mud.likes}} Me gusta</span>
                     </a>
-                    <a v-else @click="likePost(post)" href="#">
+                    <a v-else @click="likeMud(mud)" href="#">
                         <img src="@/assets/img/hornero.svg" alt="Hornero"/>
-                        <span>{{post.likes}} Me gusta</span>
+                        <span>{{mud.likes}} Me gusta</span>
                     </a>
                 </div>
                 <form action="" @submit.prevent="newComment">
@@ -79,15 +79,15 @@ export default {
     props:["id"],
     data() {
         return {
-            baseUrl: 'http://192.168.3.151:4000/',
-            postLikes: [],
+            baseUrl: 'http://192.168.3.186:4000/',
+            mudLikes: [],
             like: false,
-            post: {},
+            mud: {},
             user: {},
             comments:[],
             comment: {
                 userId: null,
-                postId: null,
+                mudId: null,
                 username: null,
                 comment: "",
 
@@ -96,57 +96,57 @@ export default {
     },
     created(){
         this.comment.userId = this.$store.getters.loggedId
-        this.comment.postId = this.id
+        this.comment.mudId = this.id
         this.comment.username = this.$store.getters.username
         //traemos el post
-        api.get(`/posts/${this.id}`).then(response => {
-            this.post = response.data
+        api.get(`/mud/${this.id}`).then(response => {
+            this.mud = response.data
             //traemos el usuario del post
-            return api.get(`/users/${this.post.user_id}`)
+            return api.get(`/users/${this.mud.user_id}`)
         }).then(user =>{
             this.user = user.data
             //regresar 
-            return api.get(`/posts/${this.id}/comments`)
+            return api.get(`/muds/${this.id}/comments`)
         }).then(comments => {
             this.comments = comments.data
         })
-        api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
-            this.postLikes = response.data
+        api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
+            this.mudLikes = response.data
       })
     },
     methods:{
         close(){
             this.$router.push('/')
-                api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
+                api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
                     if(response.data.ok){
-                        this.postLikes = response.data
+                        this.mudLikes = response.data
                     }
                 })
 
 
 
         },
-        likePostDown(post){
+        likeMudDown(mud){
 
-            api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+            api.post(`/muds/likedown/${mud.mud_id}/${this.$store.getters.loggedId}`).then(response => {
                 if(response.data.ok){
-                    if(this.postLikes.indexOf(post.post_id)!=-1){
-                        this.postLikes.splice(this.postLikes.indexOf(post.post_id), 1);
+                    if(this.mudLikes.indexOf(mud.mud_id)!=-1){
+                        this.mudLikes.splice(this.mudLikes.indexOf(mud.mud_id), 1);
                         this.like = false
-                        post.likes--
+                        mud.likes--
                     }else{
                         alert('you stop pushing! :(')
                     }
                 }
             })
         },
-        likePost(post) {
-            api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+        likeMud(mud) {
+            api.post(`/muds/like/${mud.mud_id}/${this.$store.getters.loggedId}`).then(response => {
                 if(response.data.ok){
-                    if(this.postLikes.indexOf(post.post_id)==-1){
-                        this.postLikes.push(post.post_id)
+                    if(this.mudLikes.indexOf(mud.mud_id)==-1){
+                        this.mudLikes.push(mud.mud_id)
                         this.like = true
-                        post.likes++
+                        mud.likes++
                     }else{
                         alert('you stop pushing! :(')
                     }
@@ -155,9 +155,9 @@ export default {
         },
         newComment(){
             this.comment.userId = this.$store.getters.loggedId
-            this.comment.postId = this.id
+            this.comment.mudId = this.id
             this.comment.username = this.$store.getters.username
-            api.post(`/posts/${this.comment.postId}/comments`, this.comment).then(response => {
+            api.post(`/muds/${this.comment.mudId}/comments`, this.comment).then(response => {
                 if(response.data.ok){
                     this.comments.push(this.comment)
                     this.comment = ""
@@ -165,8 +165,8 @@ export default {
                     
             })
         },
-        navigateprofile(post){
-            this.$router.push(`/profileuser/${post.user_id}`)
+        navigateprofile(mud){
+            this.$router.push(`/profileuser/${mud.user_id}`)
         }
     }
 }
@@ -238,7 +238,12 @@ export default {
                             border-radius 20px
                     .text
                         p 
-                            margin 0
+                            font-size 1rem
+                            width 20rem
+                            padding 1px
+                            /* Control de la altura con base en el texto del div*/
+                            height: auto;
+                            word-wrap: break-word;
                 div.footer 
                     padding 0 20px
                     div.likes 

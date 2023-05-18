@@ -67,6 +67,8 @@ export default {
                     this.$store.commit('setToken', result.data.token)
                     this.$store.commit('setId', result.data.id)
                     this.$store.commit('setUsername', result.data.username)
+                    this.$store.commit('setUsername', result.data.name)
+                    this.$store.commit('setUsername', result.data.lastname)
                     api.defaults.headers['Authorization'] = this.$store.getters.token
                     console.log(result.data.username)
                     this.$router.push('/')

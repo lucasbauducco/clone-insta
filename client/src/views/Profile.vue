@@ -2,7 +2,7 @@
     <main>
         <div class="container">
             <h1 class="title-account text-center">Mi Perfil</h1>
-            <p class="text-account">{{ name }}</p>
+            <p class="text-account">{{ username }}</p>
             <div class="container container-border profile-background">
                 <div class="flex justify-content">
                     <img src="@/assets/img/profile_test.png" alt="profile img">
@@ -56,6 +56,7 @@
         data(){
             return {
                 id: this.$store.getters.loggedId, 
+                username: this.$store.getters.username, 
                 email: null,
                 name:  'Juliet Waltier',
                 description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
@@ -66,10 +67,10 @@
                 this.email = response.data.email
                 this.name = response.data.username
             })
-            api.get(`/posts/user/${this.$store.getters.loggedId}`).then(response => {
+            api.get(`/muds/user/${this.$store.getters.loggedId}`).then(response => {
                 this.posts = response.data
             })
-            api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
+            api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
                 this.postLikes = response.data
             })
         },

@@ -1,107 +1,56 @@
 <template>
   <main>
-    <div class="home container">
+    <div class="container">
       <article>
         <h1>Lo más <strong>nuevo</strong></h1>
       </article>
       <div class="grid">
+        <figure v-for="mud in muds" :key="mud.mud_id">      
         <div class="mud">
-            <div class="mud-post">
+          <div class="mud-post">
               <div class="avatar">
-                              <a href="#">
-                                  <img src="@/assets/img/profile_test.png" alt="image profile">
-                              </a>
+                  <a href="#">
+                      <img src="@/assets/img/profile_test.png" alt="image profile">
+                  </a>
               </div>
               <div class="mud-body">
-                  <div class="top">
+                <div class="top">
                     <div>
-                      <a href="#">Julieta Del Mount</a>
+                      <a href="#">{{ name }} {{ lastname }}</a>
                       <a  href="#">
-                          @UserName
+                          {{ username }}
                       </a>
                     </div>
                       <a class="seguir" >Seguir</a>
-                  </div>
-                  <p class="p-post">Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-                  Lorem Ipsum has been the industry's standard 
-                  dummy text ever since the 1500s, when an unknown 
-                  printer took a galley of type and scrambled it to make a type specimen book standards.
-                  </p>
-                  <div class="mud-body">
-                    <img class="img-post" src="http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcTGhCZ-hRCd12WmbfW7Cljqx_aZ2m8fOx59bmy4fbJ1LyUZwLpDcGTZqflRpLzLZ9iN" alt="El Chaltén">
-                  </div>
+                </div>
+                <div class="p-post">
+                      <p>{{ mud.description }}</p>
+                </div>
+                <div class="img">
+                  <img v-if="mud.source!=''" class="img-post" :src="baseUrl+ mud.source" alt="IMAGE">
+                </div>
               </div>
-            </div>
-            <div class="mud-footer">
-                <a href="#">
-                  <img src="@/assets/img/comment.svg" alt="Logo Comment"/>
-                </a>
-                <a  href="#">
-                  <img src="@/assets/img/teja.png" alt="Logo teja"/>
-                </a>
-                <a class="seguir" >
-                  <img src="@/assets/img/hornero.svg" alt="Logo like"/>
-                </a>
-            </div>
           </div>
-        <figure v-for="post in posts" :key="post.post_id">
-          <!--MUDS-->
-          <div v-if="post.type==='mud'" class="mud">
-            <div class="mud-post">
-              <div class="avatar">
-                              <a href="#">
-                                <img src="@/assets/img/profile_test.png" alt="image profile">
-                              </a>
+          <div class="mud-footer">
+                  <a href="#" @click="navigatePost(mud)">
+                    <img src="@/assets/img/comment.svg" alt="Logo Comment"/>
+                  </a>
+                  <a  href="#">
+                    <img src="@/assets/img/teja.png" alt="Logo teja"/>
+                  </a>
+                  <a class="follow" >
+                    <a v-if="mudLikes.includes(mud.mud_id)" @click="likeMudDown(mud)" href="#">
+                            <img src="@/assets/img/heart.svg" alt="Heart"/>
+                            <span >{{mud.likes}}</span>
+                    </a>
+                    <a v-else @click="likeMud(mud)" href="#">
+                        <img src="@/assets/img/hornero.svg" alt="Hornero"/>
+                        <span>{{mud.likes}} Me gusta</span>
+                    </a>
+                  </a>
               </div>
-              <div class="mud-body">
-                  <div class="top">
-                    <div>
-                      <a href="#">Julieta Del Mount</a>
-                      <a  href="#">
-                          @UserName
-                      </a>
-                    </div>
-                      <a class="seguir" >Seguir</a>
-                  </div>
-                  <p class="p-post">{{post.text}}
-                  </p>
-                  <div v-if="post.source!=''" class="mud-body">
-                    <img v-if="post.source!=''" class="img-post" :src="baseUrl+ post.source" alt="IMAGE">
-                  </div>
-              </div>
-            </div>
-            <div v-if="post.source===''" class="mud-footer">
-                <a href="#">
-                  <img src="@/assets/img/comment.svg" alt="Logo Comment"/>
-                </a>
-                <a  href="#">
-                  <img src="@/assets/img/teja.png" alt="Logo teja"/>
-                </a>
-                <a class="seguir" >
-                  <img src="@/assets/img/hornero.svg" alt="Logo like"/>
-                </a>
-            </div>
-          </div>
-          <div v-else>
-            <img :src="baseUrl+ post.source" :alt="posts.title" @click="navigatePost(post)">
-            <figcaption>
-              <ul>
-                <li v-if="postLikes.includes(post.post_id)"> 
-                  <img src="@/assets/img/heart.svg" @click="likePostDown(post)" alt="Heart"/>
-                  <span>{{ post.likes}}</span>
-                </li>
-                <li v-else> 
-                  <img src="@/assets/img/hornero.svg" @click="likePost(post)" alt="Hornero"/>
-                  <span>{{ post.likes}}</span>
-                </li>
-                <li> 
-                  <img src="@/assets/img/comment.svg" alt="Logo Comment" @click="navigatePost(post)">
-                  <span>{{ post.comments}}</span>
-                </li>
-              </ul>
-            </figcaption>
-          </div>
-        </figure>
+        </div>
+      </figure>
       </div>
     </div>
   </main>
@@ -114,155 +63,98 @@ import store from '@/store'
 export default {
     data(){
       return{
-        posts: [],
+        username: this.$store.getters.username,
+        name: this.$store.getters.name,
+        lastname: this.$store.getters.lastname,
+        muds: [],
         like: false,
-        postLikes: [],
-        baseUrl: 'http://192.168.3.151:4000/'
+        mudLikes: [],
+        baseUrl: 'http://192.168.3.186:4000/'
       }
     },
     created(){
-      api.get('/posts').then(response => {
-        this.posts = response.data
-      })
       api.get('/muds').then(response => {
-        this.posts = this.posts.concat(response.data)
+        this.muds = this.muds.concat(response.data)
       })
-      api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
-        this.postLikes = response.data
+      api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
+        this.mudLikes = response.data
       })
   },
   methods: {
-    likePostDown(post){
+    likeMudDown(mud){
       if(!store.getters.token) alert('Please Loggin In')
-      api.post(`/posts/likedown/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+      api.post(`/muds/likedown/${mud.mud_id}/${this.$store.getters.loggedId}`).then(response => {
         if(response.data.ok){
-          if(this.postLikes.indexOf(post.post_id)!=-1){
-            this.postLikes.splice(this.postLikes.indexOf(post.post_id), 1);
+          if(this.mudLikes.indexOf(mud.mud_id)!=-1){
+            this.mudLikes.splice(this.mudLikes.indexOf(mud.mud_id), 1);
             this.like = false
-            post.likes--
+            mud.likes--
           }else{
             alert('you stop pushing! :(')
           }
         }
       })
     },
-    likePost(post) {
+    likeMud(mud) {
       if(!store.getters.token) alert('Please Loggin In')
-      api.post(`/posts/like/${post.post_id}/${this.$store.getters.loggedId}`).then(response => {
+      api.post(`/muds/like/${mud.mud_id}/${this.$store.getters.loggedId}`).then(response => {
         if(response.data.ok){
-          if(this.postLikes.indexOf(post.post_id)==-1){
-            this.postLikes.push(post.post_id)
+          if(this.mudLikes.indexOf(mud.mud_id)==-1){
+            this.mudLikes.push(mud.mud_id)
             this.like = true
-            post.likes++
+            mud.likes++
           }else{
             alert('you stop pushing! :(')
           }
         }
       })
     },
-    navigatePost(post){
-      this.$router.push(`/post/${post.post_id}`)
+    navigatePost(mud){
+      this.$router.push(`/mud/${mud.mud_id}`)
     }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
-    main
-      background  #EEEEEE
-      padding-top 100px
-      min-height 100vh
-      h1 
-        margin 0
-      article
-        margin-top 30px
-
-      div.grid
+.grid
+  display flex
+  flex-direction column
+  align-items center
+  figure
+    background-color #eeeeee
+    padding 10px
+  .mud
+   .mud-post
+      display flex
+    .mud-body
+      .top
         display flex
-        margin 20px 0
+        justify-content flex-end
         align-items center
-        flex-wrap wrap
-        div.mud-post
-          width 100%
-          background rgba( 255, 255, 255 , 1)
-          display flex
-          .avatar
-            img
-              width 4rem
-          .mud-body
-            display flex
-            flex-direction column
-            align-content center
-            img
-                width 100%
-                padding 1rem
-            .top
-              display flex
-              justify-content space-between
-              padding 1.2rem 0rem
-              a 
-                padding 0 0.4rem
-            .p-post
-              text-align justify
-              padding 0 5%
-            @media screen and (max-width: 480px)
-              .top
-                a 
-                  font-size 0.8rem
-        .mud-footer
-          width 100%
-          display flex
-          background rgba(0,0,0,0.5)
-          justify-content space-evenly
-          img
-            width 2rem
-        figure 
-          margin 20px 0
-          width 100%
-          
-          position relative
-          pointer-events none
-          text-align center
-          &:hover figcaption
-            opacity 1
-          img
-            display block
-            width 100%
-            pointer-events all
-            cursor pointer
-          figcaption
-            position absolute
-            top 0
-            left 0
-            width 100%
-            height 100%
-            background-color rgba(0,0,0,0.7)
-            display flex
-            align-items center
-            justify-content center
-            opacity 0
-            transition opacity ease-out 200ms
-            pointer-events none
-            cursor pointer
-            ul 
-              display flex
-              margin 0
-              padding 0
-              width 80%
-              justify-content space-around
-              li 
-                display flex
-                align-items center
-                justify-content center
-                list-style none
-                color white
-                font-size 40px
-                margin-left 10px
-                span 
-                  font-size 16px
-                img
-                  width 40px
-                  position relative
-                  z-index 1
+        padding 25px 5px 25px
+      .p-post 
+        p
+          font-size 1rem
+          width 28rem
+          padding 1px
+          /* Control de la altura con base en el texto del div*/
+          height: auto;
+          word-wrap: break-word;
+      .seguir
+        padding 0 10px 0 20px
+      .img
+        .img-post
+          width 33.333333vw
+    .mud-footer
+      display flex
+      justify-content flex-end
+      a
+        padding 10px
+      img 
+        width 20px
+
+
+
 
 </style>

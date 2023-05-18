@@ -44,7 +44,6 @@
                     <div class="flex upload">
                         <div class="column">
                             
-                        <image-upload @selected="getName"></image-upload>
                         </div>
                         <div class="column">
                             <form enctype="multipart/form-data" @submit.prevent="publish">
@@ -93,13 +92,11 @@ export default {
           if (input.files) {
             var reader = new FileReader()
             reader.onload = (e) => {
-                this.image= e.target.result
-                var img = new Image();
+              this.image= e.target.result;
+              var img = new Image();
 
-                img.src= this.image;
-                console.log(img.src.width);
-                console.log(img.src.height);
-              this.image = this.crop(this.image, img.src.width, img.src.height);
+              img.src= this.image;
+              this.image = this.crop(this.image, img.width, img.height);
               this.preview = this.image;
               
             }
@@ -107,6 +104,21 @@ export default {
             reader.readAsDataURL(input.files[0]);
           }
         },
+        //return a promise that resolves with a File instance
+          dataURLtoFile(dataurl, filename) {
+              
+              var arr = dataurl.toString().split(','),
+                  mime = arr[0].match(/:(.*?);/)[1],
+                  bstr = atob(arr[1]), 
+                  n = bstr.length, 
+                  u8arr = new Uint8Array(n)
+                  
+              while(n--){
+                  u8arr[n] = bstr.charCodeAt(n)
+              }
+              
+              return new File([u8arr], filename, {type:mime})
+          },
         crop(image, width, height) {
           // create a canvas
           const canvas = document.createElement('canvas');
@@ -114,6 +126,8 @@ export default {
           var x = 0;
           var y = 0;
           var aspect_ratio= width/height;
+          var resultWidth = 0;
+          var resultHeight = 0;
           let orig_src = new Image();
           var heightcanvas = 5*height/4;
           orig_src.src = image;
@@ -123,10 +137,18 @@ export default {
           // If you want aspect ration 4:5 uncomment the line below.
       
           canvas.height = 1350;
-          // draw the image
+          if(height < 1350){
+            resultHeight = 1350 - height;
+            resultHeight = resultHeight   / 2;
+          }
+          if(width < 1080){
+            resultWidth= 1080 - width;
+            resultWidth= resultWidth / 2;
+          }
+          //draw the image
           ctx.fillStyle = "rgba( 255, 255, 255 , 1)";
-          ctx.fillRect (0, 0, width, height);
-          ctx.drawImage(orig_src,x,y,width,height);
+          ctx.fillRect (0, 0, 1080, 1350);
+          ctx.drawImage(orig_src, resultWidth, resultHeight, width, height);
 
           // return the data url
           return canvas.toDataURL();
@@ -135,10 +157,6 @@ export default {
            this.image = value
         },
         publish() {
-            if (this.image==='') {
-                alert('Seleccione una imagen');
-                return;
-            }
             var img = new Image()
 
                   img.src= this.image
@@ -147,16 +165,21 @@ export default {
                     this.image=''
                     return;
                   }
-            this.image = this.crop(this.image, img.width, img.height)
-            this.image = this.dataURLtoFile(this.image, 'image.jpg')
+            if (this.image!='') {
+              this.image = this.crop(this.image, img.width, img.height)
+              this.image = this.dataURLtoFile(this.image, 'image.jpg')
+            }else{
+              this.image=""
+            }
             const formData = new FormData()
             formData.set('title', this.titulo)
             formData.set('tags', this.tags)
             formData.set('description', this.descripcion)
             formData.set('user_id', this.$store.getters.loggedId)
             formData.append('source', this.image)
-
-            api.post('/posts', formData, {
+            console.log(formData)
+            if(this.image==''){
+              api.post('/muds/text', formData, {
                 headers: {
                 'content-type': 'multipart/form-data'
                 }
@@ -164,6 +187,16 @@ export default {
                 if(result.data.ok)
                     this.$router.push('/')
             })
+            }else{
+              api.post('/muds', formData, {
+                headers: {
+                'content-type': 'multipart/form-data'
+                }
+            }).then(result => {
+                if(result.data.ok)
+                    this.$router.push('/')
+            })
+            }
         }
     },
 
@@ -175,6 +208,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+    input[type="file"]
+      display show
     main
       background  #EEEEEE
       padding-top 100px

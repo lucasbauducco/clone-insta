@@ -58,14 +58,14 @@
                 email: null,
                 name:  '',
                 description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                postLikes: [],
+                mudLikes: [],
                 like: false,
-                post: {},
+                mud: {},
                 user: {},
                 comments:[],
                 comment: {
                     userId: null,
-                    postId: null,
+                    mudId: null,
                     username: null,
                     comment: "",
 
@@ -77,11 +77,11 @@
                 this.email = response.data.email
                 this.name = response.data.username
             })
-            api.get(`/posts/user/${this.id}`).then(response => {
-                this.posts = response.data
+            api.get(`/muds/user/${this.id}`).then(response => {
+                this.muds = response.data
             })
-            api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
-                this.postLikes = response.data
+            api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
+                this.mudLikes = response.data
             })
         },
         methods:{

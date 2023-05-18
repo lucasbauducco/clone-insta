@@ -1,20 +1,20 @@
 <template>
     <div class="grid">
-        <figure v-for="post in posts" :key="post.post_id">
-          <img :src="baseUrl+ post.source" :alt="posts.title" @click="navigatePost(post)">
+        <figure v-for="mud in muds" :key="mud.mud_id">
+          <img :src="baseUrl+ mud.source" :alt="mud.title" @click="navigateMud(mud)">
           <figcaption>
             <ul>
-              <li v-if="postLikes.includes(post.post_id)"> 
-                <img src="@/assets/img/heart.svg" @click="likePostDown(post)" alt="Heart"/>
-                <span>{{ post.likes}}</span>
+              <li v-if="mudLikes.includes(mud.mud_id)"> 
+                <img src="@/assets/img/heart.svg" @click="likeMudDown(mud)" alt="Heart"/>
+                <span>{{ mud.likes}}</span>
               </li>
               <li v-else> 
-                <img src="@/assets/img/hornero.svg" @click="likePost(post)" alt="Hornero"/>
-                <span>{{ post.likes}}</span>
+                <img src="@/assets/img/hornero.svg" @click="likeMud(mud)" alt="Hornero"/>
+                <span>{{ mud.likes}}</span>
               </li>
               <li> 
-                <img src="@/assets/img/comment.svg" alt="Logo Comment" @click="navigatePost(post)">
-                <span>{{ post.comments}}</span>
+                <img src="@/assets/img/comment.svg" alt="Logo Comment" @click="navigatePost(mud)">
+                <span>{{ mud.comments}}</span>
               </li>
             </ul>
           </figcaption>
@@ -28,10 +28,10 @@ export default {
     data(){
             return {
                 iduser: this.$parent.id,
-                posts: [],
+                muds: [],
                 like: false,
-                postLikes: [],
-                baseUrl: 'http://192.168.3.188:4000/',
+                mudLikes: [],
+                baseUrl: 'http://192.168.3.186:4000/',
                 email: null,
                 name:  'Juliet Waltier',
                 description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
@@ -41,11 +41,11 @@ export default {
             api.get(`/users/${this.iduser}`).then(response => {
                 this.email = response.data.email
             })
-            api.get(`/posts/user/${this.iduser}`).then(response => {
-                this.posts = response.data
+            api.get(`/muds/user/${this.iduser}`).then(response => {
+                this.muds = response.data
             })
-            api.get(`/posts/likes/${this.$store.getters.loggedId}`).then(response => {
-                this.postLikes = response.data
+            api.get(`/muds/likes/${this.$store.getters.loggedId}`).then(response => {
+                this.mudLikes = response.data
             })
         },
 }
