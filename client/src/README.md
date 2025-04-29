@@ -6,8 +6,8 @@ Este proyecto es un clon simple de Instagram y algunas adaptaciones para hacer "
 - **Backend (server):** Node.js + Express
 
 ## Estructura del proyecto
-# / ├── client/ # Frontend en Vue.js 
-#    └── server/ # Backend en Node.js (Express)
+# ├── client/ # Frontend en Vue.js 
+# └── server/ # Backend en Node.js (Express)
 
 ---
 
